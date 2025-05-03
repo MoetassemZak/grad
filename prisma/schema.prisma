@@ -7,17 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id          Int      @id @default(autoincrement())
-  name        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id])
-
-  @@index([name])
-}
-
 model Account {
   id                       String  @id @default(cuid())
   userId                   String
@@ -54,8 +43,9 @@ model User {
   password      String
   role          Role      @default(CUSTOMER)
   accounts      Account[]
-  posts         Post[]
   sessions      Session[]
+  posts         Post[]    // One-to-many relation with Post
+  designUploads DesignUpload[] // One-to-many relation with DesignUpload
 }
 
 model VerificationToken {
@@ -69,4 +59,33 @@ model VerificationToken {
 enum Role {
   CUSTOMER
   DESIGNER
+}
+
+model Post {
+  id           Int           @id @default(autoincrement())
+  title        String
+  content      String
+  author       String
+  userId       String
+  createdAt    DateTime      @default(now())
+  comments     Comment[]
+  designUploads DesignUpload[] // One-to-many relation with DesignUpload
+  user         User          @relation(fields: [userId], references: [id])
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  text      String
+  author    String
+  createdAt DateTime  @default(now())
+  postId    Int
+  post      Post      @relation(fields: [postId], references: [id])
+}
+
+model DesignUpload {
+  id         Int    @id @default(autoincrement())
+  designerId String
+  designer   User   @relation(fields: [designerId], references: [id]) // Relation to User
+  postId     Int
+  post       Post   @relation(fields: [postId], references: [id]) // Relation to Post
 }

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-base-to-string */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 'use server';
 
 import bcrypt from 'bcryptjs';
@@ -7,6 +10,31 @@ import { ZodError } from 'zod';
 import { signUpSchema } from '~/schema';
 import { signIn, signOut } from '~/server/auth';
 import { db } from '~/server/db';
+
+import  getServerSession  from "next-auth";
+import { authConfig } from "~/server/auth/config";
+
+type UserSession = {
+  id: string;
+  email: string;
+  role?: string;
+};
+
+export async function getCurrentUser() {
+  const session = getServerSession(authConfig);
+
+  if (!session || !("user" in session)) {
+    return null;
+  }
+
+  const user = session.user as UserSession;
+
+  return {
+    id: user.id,
+    email: user.email,
+    role: user.role ?? null,
+  };
+}
 
 export async function signout() {
   await signOut();

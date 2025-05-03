@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import {type NextAuthConfig, type DefaultSession} from "next-auth";
 import Credentials from "next-auth/providers/credentials";
@@ -70,9 +71,10 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         token.role = (user as any).role; // `user` comes from DB
       }
-      return token;
+      return token;   
     },
     async session({ session, token }) {
       return {
