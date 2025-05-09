@@ -98,6 +98,8 @@ export type CanvasState = {
 } | {
   mode: CanvasMode.Pressing
   origin: Point
+} | {
+  mode: CanvasMode.RightClick
 }
 
 export enum CanvasMode {
@@ -108,7 +110,8 @@ export enum CanvasMode {
   Resizing,
   Translating,
   SelectionNet,
-  Pressing
+  Pressing,
+  RightClick
 }
 
 export type XYWH = {

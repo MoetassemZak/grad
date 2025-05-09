@@ -15,10 +15,8 @@ const SelectionBox = memo(
     
     const soleLayerId = useSelf((me) => me.presence.selection.length === 1 ? me.presence.selection[0] : null)
 
-    const isShowingHandles = useStorage(
-      (root) =>
-        soleLayerId && root.layers.get(soleLayerId)?.type !== LayerType.Path,
-    ); 
+    const isShowingHandles = useStorage((root) => soleLayerId && root.layers.get(soleLayerId)?.type !== LayerType.Path,
+    )
     
     const bounds = useSelectionBounds()
     const textRef = useRef<SVGTextElement>(null);
@@ -51,13 +49,14 @@ const SelectionBox = memo(
           rx={4}
         />
         <text 
-          className="pointer-events-none fill-white text-[11px]"
+          className="pointer-events-none select-none fill-white text-[11px]"
           style={{transform: `translate(${bounds.x + bounds.width/2}px, ${bounds.y + bounds.height + 25}px)`}}
           textAnchor="middle"
           ref={textRef}
         >
           {Math.round(bounds.width)} x {Math.round(bounds.height)}
         </text>
+
         {isShowingHandles && (
           <>
             {/* top-left */}

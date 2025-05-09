@@ -11,6 +11,8 @@ import ToolsBar from "../toolsbar/ToolsBar";
 import Path from "./Path";
 import SelectionBox from "./SelectionBox";
 import useDeleteLayers from "~/hooks/useDeleteLayers";
+import SelectionTools from "./SelectionTools";
+import Sidebars from "../sidebars/Sidebars";
 
 const MAX_LAYERS = 100;
 
@@ -22,6 +24,8 @@ export default function Canvas() {
   const pencilDraft = useSelf(((me) => me.presence.pencilDraft))
 
   const [camera,setCamera] = useState<Camera>({x:0,y:0,zoom:1})
+
+  const [leftIsMinimized,setLeftIsMinimized] = useState(false)
 
   const deleteLayers = useDeleteLayers();
 
@@ -91,8 +95,14 @@ export default function Canvas() {
       }, {addToHistory: true})
     }
 
-    const point = pointerEventToCanvasPoint(e, camera)
-    setCanvasState({mode: CanvasMode.Translating, current: point})
+    if (e.nativeEvent.button === 2) {
+      setCanvasState({mode: CanvasMode.RightClick})
+    }
+    else {
+      const point = pointerEventToCanvasPoint(e, camera)
+      setCanvasState({mode: CanvasMode.Translating, current: point})
+    }
+    
   },[canvasState.mode, camera, history])
 
   const onResizeHandlePointerDown = useCallback((corner: Side, initialBounds: XYWH) => {
@@ -345,6 +355,8 @@ export default function Canvas() {
   ])
 
   const onPointerUp = useMutation(({}, e:React.PointerEvent) => {
+    if (canvasState.mode === CanvasMode.RightClick) return;
+    
     const point = pointerEventToCanvasPoint(e,camera)
 
     if (canvasState.mode === CanvasMode.None || canvasState.mode === CanvasMode.Pressing) {
@@ -376,11 +388,16 @@ export default function Canvas() {
           style={{backgroundColor: roomColor ? colorToCss(roomColor) : "#1E1E1E"}}
           className="h-full w-full touch-none"
         >
+          <SelectionTools 
+            camera={camera} 
+            canvasMode={canvasState.mode} setCanvasState={() => setCanvasState({mode: CanvasMode.None})}
+          />
           <svg 
             onWheel={onWheel} 
             onPointerUp={onPointerUp} className="w-full h-full"
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
+            onContextMenu={(e) => e.preventDefault()}
           >
             <g 
               style={{
@@ -431,6 +448,11 @@ export default function Canvas() {
         redo={() => history.redo()}
         canRedo={canRedo}
         canUndo={canUndo}
+      />
+
+      <Sidebars 
+        leftIsMinimized={leftIsMinimized}
+        setLeftIsMinimized={setLeftIsMinimized}
       />
     </div>
   )
